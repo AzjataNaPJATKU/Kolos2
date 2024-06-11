@@ -3,13 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CodeFirst.Models;
 
-[Table("Medicament")]
-public class Medicament
+[Table("Doctor")]
+public class Titles
 {
     [Key]
     public int Id { get; set; }
     [MaxLength(100)]
     public string Name { get; set; } = string.Empty;
-    
-    public ICollection<PrescriptionMedicament> PrescriptionMedicaments { get; set; } = new HashSet<PrescriptionMedicament>();
+    public CharacterTitles CharacterTitles { get; set; } = null!;
 }

@@ -12,50 +12,40 @@ public class Dbservice : IDbservice
     {
         _context = context;
     }
-    
-    public async Task<bool> DoesPatientExist(int idPatient)
+
+    public async Task<bool> DoesCharacterExists(int CharacterId)
     {
-        return await _context.Patients.Where(patient => patient.Id == idPatient).AnyAsync();
+        return await _context.Characters.Where(characters => characters.Id == CharacterId).AnyAsync();
     }
 
-    public async Task<bool> DoesMedicamentExist(int idMedicament)
+    public async Task<ICollection<Characters>> GetCharacterItems(int CharacterId)
     {
-        return await _context.Medicaments.Where(medicament => medicament.Id == idMedicament).AnyAsync();
+        return await _context.Characters
+            .Include(e => e.Backpacks)
+            .ThenInclude(e => e.Items)
+            .Where(e => e.Id == CharacterId)
+            .ToListAsync();
     }
-    
-    public int newIdforPatient()
+
+    public Task<ICollection<Titles>> GetCharacterTitles(int CharacterId)
     {
-        return  _context.Patients.Select(patient => patient.Id).Max() + 1;
+        //TODO
+        throw new NotImplementedException();
     }
-    public int newIdforPerscription()
+
+    public async Task<bool> DoesItemExist(int ItemId)
     {
-        return _context.Prescriptions.Select(per => per.Id).Max() + 1;
+        return await _context.Items.Where(items => items.Id == ItemId).AnyAsync();
     }
-    public async Task AddnewPatient(Patient patient)
+
+    public async Task addToBackpack(int IdCharacter, int IdItem, int Amount)
     {
-        await _context.AddAsync(patient);
+        var backitems = new Backpacks();
+        backitems.CharacterId = IdCharacter;
+        backitems.Itemid = IdItem;
+        backitems.Amount = Amount;
+        
+        await _context.AddRangeAsync(backitems);
         await _context.SaveChangesAsync();
-    }
-
-    public async Task AddMedicamentPrescription(IEnumerable<PrescriptionMedicament> prescriptionMedicaments)
-    {
-        await _context.AddRangeAsync(prescriptionMedicaments);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task AddPrescription(Prescription prescription)
-    {
-        await _context.AddAsync(prescription);
-        await _context.SaveChangesAsync();
-    }
-
-    public async Task<Medicament?> getMedicament(int idMedicament)
-    {
-        return await _context.Medicaments.Where(medicament => medicament.Id == idMedicament).FirstOrDefaultAsync();
-    }
-
-    public async Task<Patient?> getPatient(int idPatient)
-    {
-        return await _context.Patients.Where(patient => patient.Id == idPatient).FirstOrDefaultAsync();
     }
 }
